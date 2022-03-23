@@ -1,0 +1,265 @@
+.include "nominal.jsim"
+.include "stdcell.jsim"
+.include "2dcheckoff_100ns.jsim"
+
+
+**********************************
+**** FA2 circuit *****************
+.subckt FA2 a b ci s g p
+Xbuffer ci cibuff buffer
+Xxor2nand1 a b 1 xor2
+Xxor2nand2 1 cibuff s xor2
+
+Xnand1 a b x nand2
+Xinv1 x g inverter
+
+Xnor1 a b y nor2
+Xinv2 y p inverter
+.ends
+
+**********************************
+**** GP/C circuit ****************
+.subckt GPC gh gl ph pl ci GHL PHL CH
+Xinv1 gh ghinv inverter
+Xnand1 gl ph x nand2
+Xnand4 ghinv x GHL nand2
+
+Xnand2 ph pl y nand2
+Xinv3 y PHL inverter
+
+Xinv2 gl glinv inverter
+Xnand3 pl ci z nand2
+Xnand5 glinv z CH nand2
+
+.ends
+
+**********************************
+**** CEND circuit ****************
+.subckt CEND gl pl ci C
+Xinv gl glinv inverter
+Xnand1 pl ci x nand2
+Xnand2 glinv x C nand2
+.ends
+
+***********************************
+**** Pre-Build Block circuits *****
+
+**** Pre-Block2 circuit ***********
+.subckt preblock2 a[1:0] b[1:0] ci sumout[1:0] GHL PHL
+*************************************************FA2 a b ci s g p
+X0FA0 a0 b0 ci sumout0 g00 p00 FA2
+X0FA1 a1 b1 CH sumout1 g01 p01 FA2
+*************************************************GPC gh gl ph pl ci GHL PHL CH
+X0GPC0 g01 g00 p01 p00 ci GHL PHL CH GPC
+.ends
+
+**** Pre-Block4 circuit ***********
+.subckt preblock4 a[3:0] b[3:0] ci sumout[3:0] GHL PHL
+*************************************************preblock2 a[1:0] b[1:0] ci sumout[1:0] GHL PHL
+Xpreblock01 a[1:0] b[1:0] ci sumout[1:0] GL0 PL0 preblock2
+Xpreblock02 a[3:2] b[3:2] CH sumout[3:2] GH0 PH0 preblock2
+*************************************************GPC gh gl ph pl ci GHL PHL CH
+X0GPC0 GH0 GL0 PH0 PL0 ci GHL PHL CH GPC
+.ends
+
+**** Pre-Block8 circuit ***********
+.subckt preblock8 a[7:0] b[7:0] ci sumout[7:0] GHL PHL
+*************************************************preblock4 a[3:0] b[3:0] ci sumout[3:0] GHL PHL
+Xpreblock01 a[3:0] b[3:0] ci sumout[3:0] GL0 PL0 preblock4
+Xpreblock02 a[7:4] b[7:4] CH sumout[7:4] GH0 PH0 preblock4
+*************************************************GPC gh gl ph pl ci GHL PHL CH
+X0GPC0 GH0 GL0 PH0 PL0 ci GHL PHL CH GPC
+.ends
+
+**** Pre-Block16 circuit ***********
+.subckt preblock16 a[15:0] b[15:0] ci sumout[15:0] GHL PHL
+*************************************************preblock8 a[7:0] b[7:0] ci sumout[7:0] GHL PHL
+Xpreblock01 a[7:0] b[7:0] ci sumout[7:0] GL0 PL0 preblock8
+Xpreblock02 a[15:8] b[15:8] CH sumout[15:8] GH0 PH0 preblock8
+*************************************************GPC gh gl ph pl ci GHL PHL CH
+X0GPC0 GH0 GL0 PH0 PL0 ci GHL PHL CH GPC
+.ends
+
+
+**** Pre-Block32 circuit ***********
+.subckt preblock32 a[31:0] b[31:0] ci sumout[31:0] GHL PHL
+*************************************************preblock8 a[7:0] b[7:0] ci sumout[7:0] GHL PHL
+Xpreblock01 a[15:0] b[15:0] ci sumout[15:0] GL0 PL0 preblock16
+Xpreblock02 a[31:16] b[31:16] CH sumout[31:16] GH0 PH0 preblock16
+*************************************************GPC gh gl ph pl ci GHL PHL CH
+X0GPC0 GH0 GL0 PH0 PL0 ci GHL PHL CH GPC
+.ends
+
+***********************************
+**** Building Block circuits ******
+**** Block2 circuit ***************
+.subckt block2 a[1:0] b[1:0] ci s[1:0] co
+*************************************************preblock2 a[1:0] b[1:0] ci sumout[1:0] GHL PHL
+*************************************************CEND gl pl ci C
+Xpreblock0 a[1:0] b[1:0] 0 sum0[1:0] GHL0 PHL0 preblock2
+X0CEND GHL0 PHL0 0 C0 CEND
+
+Xpreblock1 a[1:0] b[1:0] vdd sum1[1:0] GHL1 PHL1 preblock2
+X1CEND GHL1 PHL1 vdd C1 CEND
+*************************************************MUXES - mux2 s d0 d1 z
+Xmux0 ci sum00 sum10 s0 mux2
+Xmux1 ci sum01 sum11 s1 mux2
+Xbigmux ci C0 C1 co mux2
+.ends
+
+**** Block4 circuit ***************
+.subckt block4 a[3:0] b[3:0] ci s[3:0] co
+*************************************************preblock4 a[3:0] b[3:0] ci sumout[3:0] GHL PHL
+Xpreblock0 a[3:0] b[3:0] 0 sum0[3:0] GHL0 PHL0 preblock4
+X0CEND GHL0 PHL0 0 C0 CEND
+Xpreblock1 a[3:0] b[3:0] vdd sum1[3:0] GHL1 PHL1 preblock4
+X1CEND GHL1 PHL1 vdd C1 CEND
+*************************************************MUXES - mux2 s d0 d1 z
+Xmux0 ci sum00 sum10 s0 mux2
+Xmux1 ci sum01 sum11 s1 mux2
+Xmux2 ci sum02 sum12 s2 mux2
+Xmux3 ci sum03 sum13 s3 mux2
+Xbigmux ci C0 C1 cononbuff mux2
+Xmuxbuffer cononbuff co buffer_4
+.ends
+
+**** Block8 circuit ***************
+.subckt block8 a[7:0] b[7:0] ci s[7:0] co
+*************************************************preblock8 a[7:0] b[7:0] ci sumout[7:0] GHL PHL
+Xpreblock0 a[7:0] b[7:0] 0 sum0[7:0] GHL0 PHL0 preblock8
+X0CEND GHL0 PHL0 0 C0 CEND
+Xpreblock1 a[7:0] b[7:0] vdd sum1[7:0] GHL1 PHL1 preblock8
+X1CEND GHL1 PHL1 vdd C1 CEND
+*************************************************MUXES - mux2 s d0 d1 z
+Xmux0 ci sum00 sum10 s0 mux2
+Xmux1 ci sum01 sum11 s1 mux2
+Xmux2 ci sum02 sum12 s2 mux2
+Xmux3 ci sum03 sum13 s3 mux2
+Xmux4 ci sum04 sum14 s4 mux2
+Xmux5 ci sum05 sum15 s5 mux2
+Xmux6 ci sum06 sum16 s6 mux2
+Xmux7 ci sum07 sum17 s7 mux2
+Xbigmux ci C0 C1 cononbuff mux2
+Xmuxbuffer cononbuff co buffer_4
+.ends
+
+**** Block16 circuit ***************
+.subckt block16 a[15:0] b[15:0] ci s[15:0] co
+*************************************************preblock16 a[15:0] b[15:0] ci sumout[15:0] GHL PHL
+Xpreblock0 a[15:0] b[15:0] 0 sum0[15:0] GHL0 PHL0 preblock16
+X0CEND GHL0 PHL0 0 C0 CEND
+Xpreblock1 a[15:0] b[15:0] vdd sum1[15:0] GHL1 PHL1 preblock16
+X1CEND GHL1 PHL1 vdd C1 CEND
+*************************************************MUXES - mux2 s d0 d1 z
+Xmux0 ci sum00 sum10 s0 mux2
+Xmux1 ci sum01 sum11 s1 mux2
+Xmux2 ci sum02 sum12 s2 mux2
+Xmux3 ci sum03 sum13 s3 mux2
+Xmux4 ci sum04 sum14 s4 mux2
+Xmux5 ci sum05 sum15 s5 mux2
+Xmux6 ci sum06 sum16 s6 mux2
+Xmux7 ci sum07 sum17 s7 mux2
+Xmux8 ci sum08 sum18 s8 mux2
+Xmux9 ci sum09 sum19 s9 mux2
+Xmux10 ci sum010 sum110 s10 mux2
+Xmux11 ci sum011 sum111 s11 mux2
+Xmux12 ci sum012 sum112 s12 mux2
+Xmux13 ci sum013 sum113 s13 mux2
+Xmux14 ci sum014 sum114 s14 mux2
+Xmux15 ci sum015 sum115 s15 mux2
+Xbigmux ci C0 C1 co mux2
+.ends
+
+***** Block32 circuit ***************
+*.subckt block32 a[31:0] b[31:0] ci s[31:0] co
+*************************************************preblock32 a[31:0] b[31:0] ci sumout[31:0] GHL PHL
+*Xpreblock0 a[31:0] b[31:0] 0 sum0[31:0] GHL0 PHL0 preblock32
+*X0CEND GHL0 PHL0 0 C0 CEND
+*Xpreblock1 a[31:0] b[31:0] vdd sum1[31:0] GHL1 PHL1 preblock32
+*X1CEND GHL1 PHL1 vdd C1 CEND
+*************************************************MUXES - mux2 s d0 d1 z
+*Xmux0 ci sum00 sum10 s0 mux2
+*Xmux1 ci sum01 sum11 s1 mux2
+*Xmux2 ci sum02 sum12 s2 mux2
+*Xmux3 ci sum03 sum13 s3 mux2
+*Xmux4 ci sum04 sum14 s4 mux2
+*Xmux5 ci sum05 sum15 s5 mux2
+*Xmux6 ci sum06 sum16 s6 mux2
+*Xmux7 ci sum07 sum17 s7 mux2
+*Xmux8 ci sum08 sum18 s8 mux2
+*Xmux9 ci sum09 sum19 s9 mux2
+*Xmux10 ci sum010 sum110 s10 mux2
+*Xmux11 ci sum011 sum111 s11 mux2
+*Xmux12 ci sum012 sum112 s12 mux2
+*Xmux13 ci sum013 sum113 s13 mux2
+*Xmux14 ci sum014 sum114 s14 mux2
+*Xmux15 ci sum015 sum115 s15 mux2
+*Xmux16 ci sum016 sum116 s16 mux2
+*Xmux17 ci sum017 sum117 s17 mux2
+*Xmux18 ci sum018 sum118 s18 mux2
+*Xmux19 ci sum019 sum119 s19 mux2
+*Xmux20 ci sum020 sum120 s20 mux2
+*Xmux21 ci sum021 sum121 s21 mux2
+*Xmux22 ci sum022 sum122 s22 mux2
+*Xmux23 ci sum023 sum123 s23 mux2
+*Xmux24 ci sum024 sum124 s24 mux2
+*Xmux25 ci sum025 sum125 s25 mux2
+*Xmux26 ci sum026 sum126 s26 mux2
+*Xmux27 ci sum027 sum127 s27 mux2
+*Xmux28 ci sum028 sum128 s28 mux2
+*Xmux29 ci sum029 sum129 s29 mux2
+*Xmux30 ci sum030 sum130 s30 mux2
+*Xmux31 ci sum031 sum131 s31 mux2
+*Xbigmux ci C0 C1 co mux2
+*.ends
+
+
+**********************************
+**** Adder32 circuit *************
+.subckt adder32 op0 A[31:0] B[31:0] S[31:0] z v n
+
+*************************************************XOR gate for B
+Xxor0_b B[31:0] op0#32 XBnonbuff[31:0] xor2
+XbufferXB XBnonbuff[31:0] XB[31:0] buffer_2
+XbufferC op0 C0 buffer
+
+*************************************************STARTING TWO BLOCKS - FA a b cin s co
+*************************************************preblock2 a[1:0] b[1:0] ci sumout[1:0] GHL PHL
+
+Xpreblock16 A[15:0] XB[15:0] C0 S[15:0] C4 block16
+
+*************************************************BLOCKS 16-16
+
+Xblock16 A[31:16] XB[31:16] C4 S[31:16] C5 block16
+*************************************************n unit
+.connect n S31
+
+*************************************************v unit
+Xbuffs31 S31 Sbuff31 buffer
+
+Xvnand1 XB31 A31 V1 nand2
+Xnotv1 V1 notV1 inverter
+Xnots31 Sbuff31 notS31 inverter
+Xvnand2 notV1 notS31 V3 nand2
+Xvnor1 XB31 A31 V2 nor2
+Xvnand3 V2 Sbuff31 V4 nand2
+Xvnand4 V3 V4 V nand2
+
+
+
+*************************************************z unit (MINIMISED)
+Xfirstlayer S[31:24] S[23:16] S[15:8] S[7:0] Stwo[7:0] nor4
+Xsecondlayer Stwo[7:6] Stwo[5:4] Stwo[3:2] Stwo[1:0] Sthree[1:0] nand4
+Xzout Sthree0 Sthree1 z nor2
+
+.ends
+
+
+* Op0 will be set to 0 for ADD (S = A +
+* B) and 1 for a SUBTRACT (S = A ? B); A[31:0] and B[31:0] are the 32-bit two?s
+* complement input operands; S[31:0] is the 32-bit result; z/v/n are the three condition code
+* bits described in Lab #3
+
+
+
+

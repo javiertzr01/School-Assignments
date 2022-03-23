@@ -1,0 +1,208 @@
+BC1.1
+
+B0 := ODD(b0,Cin);
+S0 := ODD(A0,B0,Cin);
+C1 := OR(AND(A0,B0),AND(Cin,A0),AND(Cin,B0));
+
+B1 := ODD(b1,Cin);
+S1 := ODD(A1,B1,C1);
+C2 := OR(AND(A1,B1),AND(C1,A1),AND(C1,B1));
+
+B2 := ODD(b2,Cin);
+S2 := ODD(A2,B2,C2);
+C3 := OR(AND(A2,B2),AND(C2,A2),AND(C2,B2));
+
+B3 := ODD(b3,Cin);
+S3 := ODD(A3,B3,C3);
+C4 := OR(AND(A3,B3),AND(C3,A3),AND(C3,B3));
+
+B4 := ODD(b4,Cin);
+S4 := ODD(A4,B4,C4);
+C5 := OR(AND(A4,B4),AND(C4,A4),AND(C4,B4));
+
+B5 := ODD(b5,Cin);
+S5 := ODD(A5,B5,C5);
+C6 := OR(AND(A5,B5),AND(C5,A5),AND(C5,B5));
+
+B6 := ODD(b6,Cin);
+S6 := ODD(A6,B6,C6);
+C7 := OR(AND(A6,B6),AND(C6,A6),AND(C6,B6));
+
+B7 := ODD(b7,Cin);
+S7 := ODD(A7,B7,C7);
+C8 := OR(AND(A7,B7),AND(C7,A7),AND(C7,B7));
+
+B8 := ODD(b8,Cin);
+S8 := ODD(A8,B8,C8);
+C9 := OR(AND(A8,B8),AND(C8,A8),AND(C8,B8));
+
+B9 := ODD(b9,Cin);
+S9 := ODD(A9,B9,C9);
+C10 := OR(AND(A9,B9),AND(C9,A9),AND(C9,B9));
+
+B10 := ODD(b10,Cin);
+S10 := ODD(A10,B10,C10);
+C11 := OR(AND(A10,B10),AND(C10,A10),AND(C10,B10));
+
+B11 := ODD(b11,Cin);
+S11 := ODD(A11,B11,C11);
+C12 := OR(AND(A11,B11),AND(C11,A11),AND(C11,B11));
+
+B12 := ODD(b12,Cin);
+S12 := ODD(A12,B12,C12);
+C13 := OR(AND(A12,B12),AND(C12,A12),AND(C12,B12));
+
+B13 := ODD(b13,Cin);
+S13 := ODD(A13,B13,C13);
+C14 := OR(AND(A13,B13),AND(C13,A13),AND(C13,B13));
+
+B14 := ODD(b14,Cin);
+S14 := ODD(A14,B14,C14);
+C15 := OR(AND(A14,B14),AND(C14,A14),AND(C14,B14));
+
+B15 := ODD(b15,Cin);
+S15 := ODD(A15,B15,C15);
+C16 := OR(AND(A15,B15),AND(C15,A15),AND(C15,B15));
+
+
+
+
+
+
+PLayer0_No0 := NOT(NOT(OR(A0,B0)));
+GLayer0_No0 := NOT(NOT(AND(A0,B0)));
+Sum0 := ODD(A0,B0,Cin);
+
+PLayer0_No1 := NOT(NOT(OR(A1,B1)));
+GLayer0_No1 := NOT(NOT(AND(A1,B1)));
+Sum1 := ODD(A1,B1,Carry1);
+
+PLayer0_No2 := NOT(NOT(OR(A2,B2)));
+GLayer0_No2 := NOT(NOT(AND(A2,B2)));
+Sum2 := ODD(A2,B2,Carry2);
+
+PLayer0_No3 := NOT(NOT(OR(A3,B3)));
+GLayer0_No3 := NOT(NOT(AND(A3,B3)));
+Sum3 := ODD(A3,B3,Carry3);
+
+PLayer0_No4 := NOT(NOT(OR(A4,B4)));
+GLayer0_No4 := NOT(NOT(AND(A4,B4)));
+Sum4 := ODD(A4,B4,Carry4);
+
+PLayer0_No5 := NOT(NOT(OR(A5,B5)));
+GLayer0_No5 := NOT(NOT(AND(A5,B5)));
+Sum5 := ODD(A5,B5,Carry5);
+
+PLayer0_No6 := NOT(NOT(OR(A6,B6)));
+GLayer0_No6 := NOT(NOT(AND(A6,B6)));
+Sum6 := ODD(A6,B6,Carry6);
+
+PLayer0_No7 := NOT(NOT(OR(A7,B7)));
+GLayer0_No7 := NOT(NOT(AND(A7,B7)));
+Sum7 := ODD(A7,B7,Carry7);
+
+PLayer0_No8 := NOT(NOT(OR(A8,B8)));
+GLayer0_No8 := NOT(NOT(AND(A8,B8)));
+Sum8 := ODD(A8,B8,Carry8);
+
+PLayer0_No9 := NOT(NOT(OR(A9,B9)));
+GLayer0_No9 := NOT(NOT(AND(A9,B9)));
+Sum9 := ODD(A9,B9,Carry9);
+
+PLayer0_No10 := NOT(NOT(OR(A10,B10)));
+GLayer0_No10 := NOT(NOT(AND(A10,B10)));
+Sum10 := ODD(A10,B10,Carry10);
+
+PLayer0_No11 := NOT(NOT(OR(A11,B11)));
+GLayer0_No11 := NOT(NOT(AND(A11,B11)));
+Sum11 := ODD(A11,B11,Carry11);
+
+PLayer0_No12 := NOT(NOT(OR(A12,B12)));
+GLayer0_No12 := NOT(NOT(AND(A12,B12)));
+Sum12 := ODD(A12,B12,Carry12);
+
+PLayer0_No13 := NOT(NOT(OR(A13,B13)));
+GLayer0_No13 := NOT(NOT(AND(A13,B13)));
+Sum13 := ODD(A13,B13,Carry13);
+
+PLayer0_No14 := NOT(NOT(OR(A14,B14)));
+GLayer0_No14 := NOT(NOT(AND(A14,B14)));
+Sum14 := ODD(A14,B14,Carry14);
+
+PLayer0_No15 := NOT(NOT(OR(A15,B15)));
+GLayer0_No15 := NOT(NOT(AND(A15,B15)));
+Sum15 := ODD(A15,B15,Carry15);
+
+
+
+PLayer1_No0 := NOT(NOT(AND(PLayer0_No0,PLayer0_No1)));
+GLayer1_No0 := NOT(AND(NOT(GLayer0_No1),NOT(AND(GLayer0_No0,PLayer0_No1))));
+Carry1 := NOT(AND(NOT(GLayer0_No0), NOT(AND(PLayer0_No0,Cin))));
+
+PLayer1_No1 := NOT(NOT(AND(PLayer0_No2,PLayer0_No3)));
+GLayer1_No1 := NOT(AND(NOT(GLayer0_No3),NOT(AND(GLayer0_No2,PLayer0_No3))));
+Carry3 := NOT(AND(NOT(GLayer0_No2), NOT(AND(PLayer0_No2,Carry2))));
+
+PLayer1_No2 := NOT(NOT(AND(PLayer0_No4,PLayer0_No5)));
+GLayer1_No2 := NOT(AND(NOT(GLayer0_No5),NOT(AND(GLayer0_No4,PLayer0_No5))));
+Carry5 := NOT(AND(NOT(GLayer0_No4), NOT(AND(PLayer0_No4,Carry4))));
+
+PLayer1_No3 := NOT(NOT(AND(PLayer0_No6,PLayer0_No7)));
+GLayer1_No3 := NOT(AND(NOT(GLayer0_No7),NOT(AND(GLayer0_No6,PLayer0_No7))));
+Carry7 := NOT(AND(NOT(GLayer0_No6), NOT(AND(PLayer0_No6,Carry6))));
+
+PLayer1_No4 := NOT(NOT(AND(PLayer0_No8,PLayer0_No9)));
+GLayer1_No4 := NOT(AND(NOT(GLayer0_No9),NOT(AND(GLayer0_No8,PLayer0_No9))));
+Carry9 := NOT(AND(NOT(GLayer0_No8), NOT(AND(PLayer0_No8,Carry8))));
+
+PLayer1_No5 := NOT(NOT(AND(PLayer0_No10,PLayer0_No11)));
+GLayer1_No5 := NOT(AND(NOT(GLayer0_No11),NOT(AND(GLayer0_No10,PLayer0_No11))));
+Carry11 := NOT(AND(NOT(GLayer0_No10), NOT(AND(PLayer0_No10,Carry10))));
+
+PLayer1_No6 := NOT(NOT(AND(PLayer0_No12,PLayer0_No13)));
+GLayer1_No6 := NOT(AND(NOT(GLayer0_No13),NOT(AND(GLayer0_No12,PLayer0_No13))));
+Carry13 := NOT(AND(NOT(GLayer0_No12), NOT(AND(PLayer0_No12,Carry12))));
+
+PLayer1_No7 := NOT(NOT(AND(PLayer0_No14,PLayer0_No15)));
+GLayer1_No7 := NOT(AND(NOT(GLayer0_No15),NOT(AND(GLayer0_No14,PLayer0_No15))));
+Carry15 := NOT(AND(NOT(GLayer0_No14), NOT(AND(PLayer0_No14,Carry14))));
+
+
+
+
+PLayer2_No0 := NOT(NOT(AND(PLayer1_No0,PLayer1_No1)));
+GLayer2_No0 := NOT(AND(NOT(GLayer1_No1),NOT(AND(GLayer1_No0,PLayer1_No1))));
+Carry2 := NOT(AND(NOT(GLayer1_No0), NOT(AND(PLayer1_No0, Cin))));
+
+PLayer2_No1 := NOT(NOT(AND(PLayer1_No2,PLayer1_No3)));
+GLayer2_No1 := NOT(AND(NOT(GLayer1_No3),NOT(AND(GLayer1_No2,PLayer1_No3))));
+Carry6 := NOT(AND(NOT(GLayer1_No2), NOT(AND(PLayer1_No2, Carry4))));
+
+PLayer2_No2 := NOT(NOT(AND(PLayer1_No4,PLayer1_No5)));
+GLayer2_No2 := NOT(AND(NOT(GLayer1_No5),NOT(AND(GLayer1_No4,PLayer1_No5))));
+Carry10 := NOT(AND(NOT(GLayer1_No4), NOT(AND(PLayer1_No4, Carry8))));
+
+PLayer2_No3 := NOT(NOT(AND(PLayer1_No6,PLayer1_No7)));
+GLayer2_No3 := NOT(AND(NOT(GLayer1_No7),NOT(AND(GLayer1_No6,PLayer1_No7))));
+Carry14 := NOT(AND(NOT(GLayer1_No6), NOT(AND(PLayer1_No6, Carry12))));
+
+
+
+
+PLayer3_No0 := NOT(NOT(AND(PLayer2_No0,PLayer2_No1)));
+GLayer3_No0 := NOT(AND(NOT(GLayer2_No1),NOT(AND(GLayer2_No0,PLayer2_No1))));
+Carry4 := NOT(AND(NOT(GLayer2_No0), NOT(AND(PLayer2_No0, Cin))));
+
+PLayer3_No1 := NOT(NOT(AND(PLayer2_No2,PLayer2_No3)));
+GLayer3_No1 := NOT(AND(NOT(GLayer2_No3),NOT(AND(GLayer2_No2,PLayer2_No3))));
+Carry12 := NOT(AND(NOT(GLayer2_No2), NOT(AND(PLayer2_No2, Carry8))));
+
+
+
+
+PLayer4_No0 := NOT(NOT(AND(PLayer3_No0,PLayer3_No1)));
+GLayer4_No0 := NOT(AND(NOT(GLayer3_No1),NOT(AND(GLayer3_No0,PLayer3_No1))));
+Carry8 := NOT(AND(NOT(GLayer3_No0), NOT(AND(PLayer3_No0,Cin))));
+
+Z := ODD(S15, Sum15);
+ASSIGN Z;

@@ -1,0 +1,21 @@
+.include "nominal.jsim"
+.include "lab1checkoff.jsim"
+
+.subckt F A B C Z
+* BEGIN ANSWER
+* NOT F CMOS circuitry: Pullup
+MPUA pu_ab_c A vdd vdd PENH sw=8 sl=1       *pu_ab_c means pullup from a.b to c
+MPUB pu_ab_c B vdd vdd PENH sw=8 sl=1
+MPUC dti C pu_ab_c vdd PENH sw=8 sl=1       *dti stands for "drain to inverter"
+
+* NOT F CMOS circuitry: Pulldown
+MPDA dti A pd_a_b 0 NENH sw=8 sl=1
+MPDB pd_a_b B 0 0 NENH sw=8 sl=1
+MPDC dti C 0 0 NENH sw=8 sl=1
+
+* Inverter
+MPU Z dti vdd vdd PENH sw=8 sl=1
+MPD Z dti 0 0 NENH sw=8 sl=1
+
+*END ANSWER
+.ends

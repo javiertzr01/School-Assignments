@@ -1,0 +1,29 @@
+.include "nominal.jsim"
+.include "stdcell.jsim"
+.include "2dcheckoff_100ns.jsim"
+
+.subckt FA a b ci s co
+X1 a b 1 nand2
+X2 a ci 2 nand2
+X3 b ci 3 nand2
+X4 1 2 3 co nand3
+X5 a b x xor2
+X6 x ci s xor2
+.ends 
+
+.subckt adder32 ALUFN[0] A[31:0] B[31:0] S[31:0] z v n
+XREL B[31:0] ALUFN[0]#32 rel[31:0] xor2
+XADD1 A[0] rel[0] ALUFN[0] S[0] C[0] FA
+XADD2 A[30:1] rel[30:1] C[29:0] S[30:1] C[30:1] FA
+XADD3 A[31] rel[31] C[30] S[31] C[31] FA
+XZ1 S[7:0] S[15:8] S[23:16] S[31:24] r1[7:0] or4
+XZ2 r1[1:0] r1[3:2] r1[5:4] r1[7:6] r2[1:0] or4
+XZ3 r2[0] r2[1] z nor2
+XV1 A[31] Anot inverter
+XV2 rel[31] Bnot inverter
+XV3 S[31] Snot inverter
+XV4 A[31] rel[31] Snot r3 and3
+XV5 Anot Bnot S[31] r4 and3
+XV6 r3 r4 v or2
+.connect S[31] n
+.ends
