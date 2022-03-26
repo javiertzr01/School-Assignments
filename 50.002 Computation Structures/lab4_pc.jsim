@@ -1,7 +1,7 @@
-* .include "nominal.jsim"
-* .include "stdcell.jsim"
-* .include "lab4_adder.jsim"
-* .include "lab4_testpc.jsim"
+.include "nominal.jsim"
+.include "stdcell.jsim"
+.include "lab4_adder.jsim"
+.include "lab4_testpc.jsim"
 
 .subckt PC_UNIT clk reset id[15:0] PCSEL[2:0] ra[31:0] ia[31:0] PC_4_SXTC[31:0] PC_4[31:0]
 
@@ -23,14 +23,16 @@ Xreset2 0#31 RESETAddr[30:0] bus
 
 ***** JMP mux *************
 * BEGIN ANSWER
-
-
+XjmpMux ia31 0 ra31 ia31_new mux2
 
 * END ANSWER
 ****************************
 
 **** 5-to-1 PCSEL mux *****
 * BEGIN ANSWER
+
+XPCSelMux1 PCSEL0#32 PCSEL1#32 PC_4[31:0] PC_4_SXTC[31:0] ia31_new ra[30:2] 0#2 ILLOP[31:0] PCSELmux1[31:0] mux4
+XPCSelMux2 PCSEL2#32 PCSELmux1[31:0] XAddr[31:0] PCSELmux2[31:0] mux2
 
 
 * END ANSWER
@@ -40,6 +42,7 @@ Xreset2 0#31 RESETAddr[30:0] bus
 **** RESET mux *************
 * BEGIN ANSWER
 
+XPCResetMux reset#32 PCSELmux2[31:0] RESETAddr[31:0] PCSELmux3[31:0] mux2
 
 * END ANSWER
 ****************************
@@ -47,6 +50,7 @@ Xreset2 0#31 RESETAddr[30:0] bus
 **** PC Register ***********
 * BEGIN ANSWER
 
+XPCReg PCSELmux3[31:0] clk#32 ia[31:0] dreg
 
 * END ANSWER
 ****************************
@@ -65,6 +69,12 @@ XPC43 0#2 PC_4[1:0] bus
 **** shift add unit ********
 * BEGIN ANSWER
 
+XShift_Add PC_4[31:0] id15#14 id[15:0] 0#2 temp[31:0] adder32
+
+XSAPC1 ia31 PC_4_SXTC31 bus
+XSAPC2 temp[30:2] PC_4_SXTC[30:2] bus
+XSAPC3 0#2 PC_4_SXTC[1:0] bus
+* 2 LSB 0 because addresses are multiples of 4 (Word) (4 Byte Addressable)
 
 * END ANSWER
 ****************************
