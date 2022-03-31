@@ -10,14 +10,14 @@ Xxp2 0 XP0 bus
 
 **** RA2SEL mux ************
 * BEGIN ANSWER
-
+XRA2SELMux ra2sel#5 id[15:11] id[25:21] raa[4:0] mux2
 
 * END ANSWER
 ****************************
 
 **** WASEL mux *************
 * BEGIN ANSWER
-
+XWASELMux wasel#5 id[25:21] XP[4:0] wa[4:0] mux2
 
 * END ANSWER
 ****************************
@@ -25,39 +25,60 @@ Xxp2 0 XP0 bus
 
 **** Regfile memory ********
 * BEGIN ANSWER
-
+Xregfile
++ vdd 0 0 id[20:16] rd1[31:0]
++ vdd 0 0 raa[4:0] rd2[31:0]
++ 0 clk werf wa[4:0] WDSEL_OUT[31:0]
++ $memory width=32 nlocations=31
 * END ANSWER
 
 * R31 checker for RD1 
 * BEGIN ANSWER
-
+XR31CheckerAnd4 id[20:17] And4CheckerOut and4
+XR31CheckerAnd2 And4CheckerOut id16 rd1muxS and2
 * END ANSWER
 
 * RD1 mux
 * BEGIN ANSWER
+XRD1Mux rd1muxS#32 rd1[31:0] 0#32 ra[31:0] mux2
 
 * END ANSWER
 
 * R31 checker for RD2 
 * BEGIN ANSWER
-
+XR31CheckerBAnd4 raa[4:1] And4CheckerBOut and4
+XR31CheckerBAnd2 And4CheckerBOut raa0 rd2muxS and2
 * END ANSWER
 
 * RD2 mux
 * BEGIN ANSWER
-
+XRD2Mux rd2muxS#32 rd2[31:0] 0#32 rb[31:0] mux2
 * END ANSWER
 ****************************
 
 **** Z computation *********
 * BEGIN ANSWER
+XZlayer1_1 ra[31:28] layer1_1 or4
+XZlayer1_2 ra[27:24] layer1_2 or4
+XZlayer1_3 ra[23:20] layer1_3 or4
+XZlayer1_4 ra[19:16] layer1_4 or4
+XZlayer1_5 ra[15:12] layer1_5 or4
+XZlayer1_6 ra[11:8] layer1_6 or4
+XZlayer1_7 ra[7:4] layer1_7 or4
+XZlayer1_8 ra[3:0] layer1_8 or4
 
+XZlayer2_1 layer1_[8:5] layer2_1 or4
+XZlayer2_2 layer1_[4:1] layer2_2 or4
+
+XZlayer3 layer2_[2:1] z_inv or2
+
+XZinverter z_inv z inverter
 * END ANSWER
 ****************************
 
 **** mwd[31:0] output ******
 * BEGIN ANSWER
-
+Xmwdout mwd[31:0] rb[31:0] bus
 * END ANSWER
 ****************************
 

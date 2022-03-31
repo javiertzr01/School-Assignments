@@ -80,7 +80,17 @@ Xresetmux reset wr_temp 0 wr_cu mux2
 
 **** Branch check **********
 * BEGIN ANSWER
+X4AndInverter id31 id31_inv inverter
+X4And id31_inv id[30:28] And4Out and4
 
+XXorBefAnd id[27:26] XorBefAndOut xor2
+
+X2And And4Out XorBefAndOut BRANCH_CHECK and2
+
+XXorBefMux id26 Z XorToMuxS xor2
+XSimpleMux XorToMuxS#3 0#2 vdd 0#3 XorToBigMux1[2:0] mux2
+
+XPCSELBIGMUX BRANCH_CHECK#3 pcsel_temp[2:0] XorToBigMux1[2:0] PCSEL_CU[2:0] mux2
 
 * END ANSWER
 ****************************
@@ -88,7 +98,23 @@ Xresetmux reset wr_temp 0 wr_cu mux2
 
 ****  IRQ handling *********
 * BEGIN ANSWER
+Xia31Inv ia31 ia31_inv inverter
+XIRQAnd IRQ ia31_inv IRQAndOut and2
 
+* For WDSEL
+XWDSELMux IRQAndOut#2 wdsel_cu[1:0] 0#2 wdsel[1:0] mux2
+
+* For WASEL
+XWASELMux IRQAndOut wasel_cu vdd wasel mux2 
+
+* For WERF
+XWERFMux IRQAndOut werf_cu vdd werf mux2
+
+* For WR
+XWRMux IRQAndOut wr_cu 0 wr mux2 
+
+* For PCSEL
+XPCSELFinalMux IRQAndOut#3 PCSEL_CU[2:0] vdd 0#2 PCSEL[2:0] mux2
 
 * END ANSWER
 ****************************
