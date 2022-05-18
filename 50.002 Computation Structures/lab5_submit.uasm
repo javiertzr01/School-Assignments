@@ -1,11 +1,20 @@
 .include beta.uasm
 .include lab5checkoff.uasm
 
+| ALLOCATE(128)
+| ADDC(R31, 0x1334, R1)
+| ADDC(R31, 0x4321, R2)
+| PUSH(R2)
+| PUSH(R1)
+| BR(count_bull_cows, LP)
+| DEALLOCATE(2)
+| HALT()
+
 
 count_bull_cows: | your subroutine must have this name
 	| standard subroutine entry sequence
 	PUSH(LP)	
-	PUSH(BP)	
+	PUSH(BP)
 	MOVE(SP,BP)	
 	| PUSH all used registers
 	PUSH(R1)		| bulls
@@ -25,13 +34,90 @@ count_bull_cows: | your subroutine must have this name
 	CMOVE(0,R1)		| set initial val of var bulls = 0
 	CMOVE(0xF,R8)		| set initial val of var mask = 0xF
 	CMOVE(0,R3)		| set initial val of var i = 0
-  	CMOVE(0,R4)   | set initial val of var j = 0
+	CMOVE(0,R4)   | set initial val of var j = 0
 	
 	|||||||||||||||||||||||||||||||||||||||||||||||
 	|||| … your code here, leave score (return value) in R0 …
 	|||||||||||||||||||||||||||||||||||||||||||||||
+	setup_bull: ADDC(R31, 0, R1) | bulls = 0
+
+	begin_bull: CMPLTC(R3, 4, R9) | check i<4, store in R9
+	BEQ(R9, setup_cow, R31 ) |if R9 = 0, then i is not < 4
+	|otherwise, continue to the for-loop body
+	AND(R11, R8, R9) | a & mask
+	AND(R12, R8, R10) | b & mask
+	CMPEQ(R9, R10, R9) | compare if a & mask == b & mask
+
+	BEQ(R9, end_if_bull, R31) | if R9 = 0, then a & mask != b & mask, branch to end-if-bull
+	| otherwise, continue to if-body
+	ADDC(R1, 1, R1) | bulls ++
+	OR(R11, R8, R11) | b | mask
+	OR(R12, R8, R12) | a | mask
+
+	end_if_bull: SHLC(R8, 4, R8) | mask << 4
+	ADDC(R3, 1, R3) | i++ for the for loop
+	BEQ(R31, begin_bull, R31) | loop back
+
+	setup_cow: ADDC(R31, 0, R2) | cows = 0
+	ADDC(R31, 0, R3) | set i = 0 again
+
+	| |Move bulls to R0 for testing
+	| ADD(R31, R1, R0)
+
+	begin_cow: 
+	CMPLTC(R3, 4, R9) | check if i < 4
+	BEQ(R9, return_cow, R31) | if R9 = 0, means i is not < 4
+	| otherwise, continue the for loop
+	ANDC(R11, 0xF, R6) | atry = a & 0xF
+	SHRC(R11, 4, R11)	| a = a >> 4
+
+	CMPEQC(R6, 0xF, R9) | compare if atry == 0xF, if a == 0xF, R9 = 1
+	BNE(R9, end_if_cow, R31) | if R9 = 1, go back to for loop
+
+	ADD(R31, R12, R5) | btemp = b
+	ADDC(R31, 0xF, R8) | mask = 0xF
+
+
+	begin_2nd_loop:CMPLTC(R4, 4, R10) | check if j < 4
+	BEQ(R10, end_if_cow, R31) | if j is not < 4, branch to "i" for loop
+
+	ANDC(R5, 0xF, R7) | btry = btemp & 0xF
+	SHRC(R5, 4, R5) | btemp = btemp >> 4
+
+	CMPEQ(R6, R7, R10) | Check if btry = atry, if !=, R10 = 0
+	BEQ(R10, shift_mask, R31)
+	ADDC(R2, 1, R2) | cows = cows + 1
+	OR(R12, R8, R12) | b = b | mask
+	BEQ(R31, end_if_cow, R31) | loop back to the iteration
+
+	shift_mask: SHLC(R8, 4, R8) | mask = mask << 4
+	ADDC(R4, 1, R4) | j++
+	BEQ(R31, begin_2nd_loop, R31) | Back to 2nd for loop
+
+
+	end_if_cow:
+	ADDC(R3, 1, R3) | i++ for the for loop
+	ADDC(R31, 0, R4) | set j to 0
+	BEQ(R31, begin_cow, R31) | loop back
+	
+
 
 	| … POP saved registers above in reverse order…
+	return_cow:
+	SHLC(R1, 4, R9) | bulls << 4
+	ADD(R9, R2, R0) | return value
+	POP(R12)
+	POP(R11)
+	POP(R10)
+	POP(R9)
+	POP(R8)
+	POP(R7)
+	POP(R6)
+	POP(R5)
+	POP(R4)
+	POP(R3)
+	POP(R2)
+	POP(R1)
 	MOVE(BP,SP)
 	POP(BP)
 	POP(LP)
