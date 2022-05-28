@@ -30,7 +30,7 @@ def doStuff(filein, fileout, key, mode):
     # fout_b.close()
 
     # PROTIP: pythonic way
-    with open(filein, mode="r", encoding="utf-8", newline="\n") as fin:
+    with open(filein, mode="r", encoding="utf-8") as fin:
         with open(fileout, mode="w", encoding="utf-8") as fout:
             text = fin.read()
             # do stuff
