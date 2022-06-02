@@ -36,10 +36,15 @@ def saltedHash(ls):
         pw_ls.append(new_plaintext)
     return result, pw_ls
 
-def writeHashedToFile(fileout, saltedHashDict):
+def writeHashedSaltToFile(fileout, saltedHashDict):
     with open(fileout, "w") as fout:
         for key, value in saltedHashDict.items():
             fout.write("Hashed: " + key + "\nSalt: " + value + "\n\n")
+            
+def writeHashedToFile(fileout, saltedHashDict):
+    with open(fileout, "w") as fout:
+        for key,value in saltedHashDict.items():
+            fout.write(key + "\n")
 
 def writePasswordToFile(fileout, pw_ls):
     with open(fileout, "w") as fout:
@@ -51,5 +56,6 @@ if __name__ == "__main__":
     saltedHashDict, pw_ls = saltedHash(plaintexts)
     print(saltedHashDict)
     print(pw_ls)
-    writeHashedToFile("salted6.txt", saltedHashDict)
+    writeHashedSaltToFile("salted6.txt", saltedHashDict)
+    writeHashedToFile("hash6.txt", saltedHashDict)
     writePasswordToFile("plain6.txt", pw_ls)
