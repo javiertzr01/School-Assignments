@@ -47,16 +47,19 @@ def ecb(infile,outfile,key,mode):
                     block_in_hexstring = ''
                     start = 8 * i
                     block_in_bytes = file_read[start: start+8]
-                    if len(block_in_bytes) < 8:
-                            block_in_bytes = block_in_bytes.ljust(8, b'0')
                     for byte in block_in_bytes:
                         convert_to_hex = hex(byte).lstrip('0x')
                         missing_zero_count = 2 - len(convert_to_hex)
                         block_in_hexstring += ('0'*missing_zero_count + convert_to_hex)
+                    if block_in_hexstring == '':
+                        continue
                     block_in_hex = int((block_in_hexstring), 16)
                     encrypted_block = present_inv(block_in_hex, present_key)
                     encrypted_block_in_bytes = encrypted_block.to_bytes(8, byteorder = 'big')
-                            
+                    
+                    if i == number_of_blocks - 1:
+                        encrypted_block_in_bytes = encrypted_block_in_bytes.rstrip(b'0')
+                    
                     result = result + encrypted_block_in_bytes
                     if i % 1000 == 0:
                         print(str(round((i/(number_of_blocks+1) * 100),1)) + "%" + " done")
@@ -75,7 +78,8 @@ if __name__=="__main__":
     keyfile=args.keyfile
     mode=args.mode
     
-    ecb(infile, outfile, keyfile, mode)
+    # ecb(infile, outfile, keyfile, mode)
+    ecb("Revision.pbm", "Tux_D.pbm", "key.txt", 'd')
 
 
 
