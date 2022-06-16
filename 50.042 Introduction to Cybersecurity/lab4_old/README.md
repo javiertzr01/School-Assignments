@@ -1,6 +1,6 @@
 # Lab 4: Block Cipher
 
-**Deadline:17 June (2359)**
+**Deadline: 13 Oct (2359)**
 
 - [Lab 4: Block Cipher](#lab-4-block-cipher)
   - [Objectives](#objectives)
@@ -101,9 +101,13 @@ Hint: You can ignore the ﬁrst few characters which represent the header as it 
 
 ### eDimension Submission
 
+Submission ground rules:
+
+* Please make sure to indicate your name and student ID in each of the graded submission files
+* You are allowed to collaborate with **one** other student. If you choose to do so, both of your name/student ID should be indicated in the submission files. Both are still required to submit the files individually. 
+* Except for within each pair of students that are collaborating, you are not allowed to share answers and solutions.
 
 Lab 4 submission:
-Upload a zip file with the following: file name format: lab4_name_studentid_cohortnumber (cohortnumber 0/1, 0 for thursday lab, 1 for friday lab)
 
 Upload a **zip file** with the following:
 
@@ -112,4 +116,4 @@ Upload a **zip file** with the following:
 * `extract.py`
 * Decrypted `letter.e`
 
-**Deadline:17 June(2359)**
+**Deadline: 13 Oct (2359)**
