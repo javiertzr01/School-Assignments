@@ -1,0 +1,12 @@
+Q1) How could we perform the exchange of keys in the real world? Do we need a secure channel? Why or why not?
+Answer:
+Assuming Alice is communicating with Bob and Eve is the attacker
+Alice and Bob could exhange the public keys via an insecure channel. 
+Based on the discrete logarithm problem, it is almost impossible for Eve to get the private key from the either public key.
+Since the shared key can be obtained using their respective private keys and the other party's public key, while Eve only has the public key, Eve will not be able to get the shared key. 
+
+Q2) What is an advantage and a disadvantage of DHKE?
+Answer:
+An advantage of DHKE is it provides confidentiality and integrity
+A disadvantage is that this method is only applicable for communicating between 2 people
+Another disadvantage is that it does not provide authenticity.
