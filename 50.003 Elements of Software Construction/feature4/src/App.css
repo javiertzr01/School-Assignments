@@ -38,9 +38,49 @@
 } */
 
 .form-container {
-  width: 360px;
-  background-color: white;
+  width: auto;
+  background-color: ghostwhite;
   margin: auto;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
   padding: 10px;
 }
+
+.form-section {
+  width: auto;
+  background-color: ghostwhite;
+  height: auto;
+  margin: auto;
+  padding: 10px;
+}
+
+.guest-section {
+  width: auto;
+  background-color: ghostwhite;
+  display: grid;
+  height: auto;
+  padding: 10px;
+  gap: 5px;
+  grid-template-areas: 
+  "primary-guest-title"
+  "first-name last-name handphone-number"
+  "special-request-title"
+  "special-request"
+  ;
+}
+
+.first-name{
+  grid-area: firstName
+}
+
+.last-name {
+  grid-area: lastName
+}
+
+.handphone-number {
+  grid-area: hpNumber;
+}
+
+.special-request{
+  /* height: 100px !important; */
+  resize: none !important;
+} 
