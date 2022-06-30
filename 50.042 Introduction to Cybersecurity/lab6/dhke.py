@@ -5,6 +5,7 @@ import primes
 import random
 import present
 import ecb
+import babygiant
 
 
 def dhke_setup(nb):
@@ -70,5 +71,3 @@ if __name__ == "__main__":
         fout.write(str(sharedKeyB))
     # Decrypt
     ecb.ecb("ciphertext.txt", "decrypted_text.txt", 'B_key.txt', 'd')
-    
-    

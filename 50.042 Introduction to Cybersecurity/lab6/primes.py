@@ -19,10 +19,9 @@ import random
 def square_multiply(a,x,n):
     y = 1
     x_in_bit = bin(x)[2:]
-    x_bit_len = len(x_in_bit)
-    for i in range(x_bit_len-1,-1,-1):
+    for i in x_in_bit:
         y = (y*y)%n
-        if x_in_bit[i-(x_bit_len-1)] == '1':    # Check from MSB
+        if i == '1':    # Check from MSB
             y = (a*y)%n
     return y
 
