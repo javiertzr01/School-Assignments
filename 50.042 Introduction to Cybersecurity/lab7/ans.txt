@@ -1,0 +1,6 @@
+Explain one limitation of RSA protocol attacks.
+
+Answer:
+The limitation of RSA protocol attacks is in its specific condition required for it to work. 
+The man in the middle (MITM) attack on RSA protocol require the protocol to send an encrypted message without padding and without a signature to authenticate it.
+This means that if padding was added such as the case in part 5 of this lab, or if a signature is used to authenticate the message sent, then a MITM attack will not work anymore.
