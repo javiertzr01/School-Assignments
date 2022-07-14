@@ -25,6 +25,7 @@ if __name__ == "__main__":
     x = ex2.square_multiply(s, e, n_pub)
 
     # Bob's part
+    
     x_prime = ex2.square_multiply(s, e, n_pub)
     
     # Check if x_prime == x

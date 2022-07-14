@@ -2,6 +2,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Signature import PKCS1_PSS 
 from Crypto.Hash import SHA256
+import random
 
 def generate_RSA(bits=1024):
     key_priv = RSA.generate(bits)
@@ -88,6 +89,9 @@ if __name__ == "__main__":
     
     
     # Protocol Attack
+    
+    print("\n\n#Protocol Attack#\n")
+    
     plaintext = "100"
     print("Encrypting:   " + plaintext + "\n")
     multiplier = "2"
@@ -113,3 +117,20 @@ if __name__ == "__main__":
     except ValueError:
         # Cannot Decrypt, Ciphertext with incorrect length
         print("ValueError: Cannot decrypt. Ciphertext with incorrect length")
+    print("\n#End of Protocol Attack#\n")
+    
+    print("\n\n#RSA Digital Signature Protocol Attack#\n")
+    # RSA Digital Signature Protocol Attack
+    # Alice's part
+    # Choose any 1024-bit integer s
+    s = str(random.getrandbits(1024))
+    # Create message by encrypting s
+    x = sign_data("generated_priv_key.pem", s)
+    
+    # Bob's part
+    x_prime = verify_sign("generated_priv_key.pem", x, s)
+    
+    # Check if x_prime == x
+    print("Same signature?: ")
+    print(x == x_prime)
+    print("\n#End of RSA Digital Signature Protocol Attack#\n")
