@@ -1,10 +1,32 @@
 import React from "react";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import {
+    Container,
+    Row,
+    Col,
+    Form,
+    Button,
+} from "react-bootstrap";
 import countryList from "react-select-country-list";
-import { Formik } from "formik";
+import { ErrorMessage, Formik, Field } from "formik";
 import * as yup from "yup";
+import "react-phone-number-input/style.css";
+import PhoneNumberInput from "./phone-number-input";
+import { isPossiblePhoneNumber } from "react-phone-number-input";
+import images from "react-payment-inputs/images";
+import { PaymentInputsWrapper, usePaymentInputs } from "react-payment-inputs";
+
+// Firestore imports
+import { db } from "./firestore-config";
+import { collection, doc, setDoc } from "firebase/firestore/lite";
+
+// Function for adding data to Firebase asynchronously
+async function addReceipt(info, bookingsCollection) {
+    const bookingDoc = doc(bookingsCollection);
+    info.bookingRef = bookingDoc.id;
+    await setDoc(bookingDoc, info);
+}
 
 let thisYear = new Date().getFullYear();
 let yearList = [];
@@ -13,46 +35,67 @@ for (let i = 0; i < 21; i++) {
 }
 let countryOptions = countryList().getLabels();
 
-yup.setLocale({
-    number:{
-        default: "Please enter a valid handphone number"
-    }
-});
+var valid = require("card-validator");
 
 const schema = yup.object().shape({
     guestFirstName: yup.string().required("Please enter a first name"),
     guestLastName: yup.string().required("Please enter a last name"),
     guestHpNum: yup
-        .number()
-        .typeError("Please enter a valid handphone number")
-        .integer("Invalid Number")
-        .positive("Invalid Number")
-        .required("Please enter your handphone number"),
+        .string()
+        .required("Please enter your handphone number")
+        .test("hpNumValidation", "Please enter valid Phone Number", (value) => {
+            if (value !== undefined) {
+                return isPossiblePhoneNumber(value);
+            }
+        }),
     guestSpecialReq: yup.string(),
     customerFirstName: yup.string().required("Please enter a first name"),
     customerEmail: yup
         .string()
         .email("Please enter a valid email")
+        // TODO: Have to fix " "@dsomething.com
         .required("Please enter an email"),
     cardName: yup.string().required("Please enter a first name"),
     cardNumber: yup
         .number()
-        .typeError("Please enter a valid card number")
-        .integer("Invalid Card Number")
-        .positive("Invalid Card Number")
-        .required("Please enter a valid card number"),
+        .required("Please enter a valid card number")
+        .test("validity", "Invalid Card Number", (value) => {
+            if (value !== undefined) {
+                let data = valid.number(value);
+                var response = false;
+                if (data.card !== null) {
+                    data.card.lengths.forEach((x) => {
+                        if (value.length === x) {
+                            response = data.isValid;
+                            if (response) {
+                                return response;
+                            }
+                        } else {
+                            response = data.isValid;
+                        }
+                    });
+                }
+                return response;
+            }
+        }),
     cardMonth: yup.string().required("Please choose a month"),
     cardYear: yup.string().required("Please choose a year"),
     cardCVC: yup
         .number()
-        .typeError("Please enter a valid card CVC number")
-        .integer("Invalid CVC number")
-        .positive("Invalid CVC number")
-        .required("Please enter a valid card CVC number"),
+        .required("Please enter a valid card CVC number")
+        .test("validity", "Invalid CVC Number", (value, context) => {
+            return valid.cvv(
+                value === undefined ? "" : value.toString(),
+                valid.number(context.parent.cardNumber).card
+                    ? valid.number(context.parent.cardNumber).card.code.size
+                    : 4
+            ).isValid;
+        }),
     billingAddress: yup.string().required("Please enter a billing address"),
     billingCity: yup.string().required("Please enter a city"),
     billingPostalCode: yup
         .number()
+        .min(3, "Please enter a valid postal code")
         .typeError("Please enter a valid postal code")
         .integer("Please enter a valid postal code")
         .positive("Please enter a valid postal code")
@@ -61,6 +104,25 @@ const schema = yup.object().shape({
 });
 
 export default function App() {
+    //firestore
+    const bookingsCollection = collection(db, "Bookings");
+
+    async function onNumberChange(e, props) {
+        const re = /^[0-9\b]+$/;
+        if (e.target.value === "" || re.test(e.target.value)) {
+            await props.handleChange(e);
+        }
+    }
+
+        const {
+            meta,
+            getCardImageProps,
+            getCardNumberProps,
+            getExpiryDateProps,
+            getCVCProps,
+            wrapperProps,
+        } = usePaymentInputs();
+
     return (
         <Container>
             <Row>
@@ -79,6 +141,61 @@ export default function App() {
                                 setSubmitting(false);
                             }, 400);
                         }}
+                        // onSubmit={(values, { setSubmitting }) => {
+                        //     const guest = {
+                        //         firstName: values.guestFirstName,
+                        //         lastName: values.guestLastName,
+                        //         hpNumber: values.guestHpNum,
+                        //     };
+                        //     const payee = {
+                        //         firstName: values.customerFirstName,
+                        //         email: values.customerEmail,
+                        //         card: {
+                        //             name: values.cardName,
+                        //             number: values.cardNumber,
+                        //             month: values.cardMonth,
+                        //             year: values.cardYear,
+                        //             cvc: values.cardCVC,
+                        //         },
+                        //         billing: {
+                        //             address: values.billingAddress,
+                        //             city: values.billingCity,
+                        //             postal: values.billingPostalCode,
+                        //             country: values.billingCountry,
+                        //         },
+                        //     };
+                        //     const info = {
+                        //         destinationID: "tbd",
+                        //         hotelID: "tbd",
+                        //         bookingDisplayInfo: {
+                        //             nights: "tbd",
+                        //             start: "tbd",
+                        //             end: "tbd",
+                        //             adults: "tbd",
+                        //             children: "tbd",
+                        //             message: values.guestSpecialReq,
+                        //             roomType: "tbd",
+                        //         },
+                        //         price: "tbd",
+                        //         supplierBookingID: "tbd",
+                        //         supplierResponse: {
+                        //             cost: "tbd",
+                        //             bookingRef: "tbd",
+                        //             termsCond: "tbd",
+                        //             hotelTermsCond: "tbd",
+                        //         },
+                        //         bookingRef: "tbd",
+                        //         guestInfo: guest,
+                        //         payeeInfo: payee,
+                        //     };
+                        //     try {
+                        //         addReceipt(info, bookingsCollection);
+                        //         alert("Booking Completed");
+                        //     } catch (e) {
+                        //         console.log(e);
+                        //         alert(e);
+                        //     }
+                        // }}
                         initialValues={{
                             guestFirstName: "",
                             guestLastName: "",
@@ -113,6 +230,7 @@ export default function App() {
                                             <Form.Label>First Name</Form.Label>
                                             <Form.Control
                                                 type="text"
+                                                aria-label="guestFirstName"
                                                 placeholder="First Name"
                                                 {...formik.getFieldProps(
                                                     "guestFirstName"
@@ -124,9 +242,18 @@ export default function App() {
                                                         .guestFirstName
                                                 }
                                             />
-                                            <Form.Control.Feedback type="invalid">
-                                                {formik.errors.guestFirstName}
-                                            </Form.Control.Feedback>
+
+                                            <ErrorMessage
+                                                name="guestFirstName"
+                                                render={(errorMessage) => (
+                                                    <Form.Control.Feedback
+                                                        type="invalid"
+                                                        aria-label="guestFirstNameError"
+                                                    >
+                                                        {errorMessage}
+                                                    </Form.Control.Feedback>
+                                                )}
+                                            />
                                         </Form.Group>
 
                                         <Form.Group
@@ -138,6 +265,7 @@ export default function App() {
                                             <Form.Label>Last Name</Form.Label>
                                             <Form.Control
                                                 type="text"
+                                                aria-label="guestLastName"
                                                 placeholder="Last Name"
                                                 {...formik.getFieldProps(
                                                     "guestLastName"
@@ -149,9 +277,17 @@ export default function App() {
                                                         .guestLastName
                                                 }
                                             />
-                                            <Form.Control.Feedback type="invalid">
-                                                {formik.errors.guestLastName}
-                                            </Form.Control.Feedback>
+                                            <ErrorMessage
+                                                name="guestLastName"
+                                                render={(errorMessage) => (
+                                                    <Form.Control.Feedback
+                                                        type="invalid"
+                                                        aria-label="guestLastNameError"
+                                                    >
+                                                        {errorMessage}
+                                                    </Form.Control.Feedback>
+                                                )}
+                                            />
                                         </Form.Group>
 
                                         <Form.Group
@@ -164,31 +300,40 @@ export default function App() {
                                                 Phone Number
                                             </Form.Label>
                                             <Form.Control
-                                                type="text"
-                                                placeholder="Number"
-                                                {...formik.getFieldProps(
-                                                    "guestHpNum"
-                                                )}
+                                                as={PhoneNumberInput}
+                                                name="guestHpNum"
+                                                formik={formik}
                                                 isInvalid={
-                                                    formik.touched.guestHpNum &&
-                                                    !!formik.errors.guestHpNum
+                                                    formik.touched.test &&
+                                                    !!formik.errors.test
                                                 }
                                             />
-                                            <Form.Control.Feedback type="invalid">
-                                                {formik.errors.guestHpNum}
-                                            </Form.Control.Feedback>
+                                            <ErrorMessage
+                                                name="guestHpNum"
+                                                render={(errorMessage) => (
+                                                    <div
+                                                        type="invalid"
+                                                        aria-label="guestHpNumError"
+                                                        class="text-danger"
+                                                    >
+                                                        <small>
+                                                            {errorMessage}
+                                                        </small>
+                                                    </div>
+                                                )}
+                                            />
                                         </Form.Group>
                                     </Row>
                                     <Row className="mb-3">
                                         <Form.Label>Special Request</Form.Label>
                                         <Form.Group>
                                             <Form.Control
-                                                as="textArea"
+                                                as="textarea"
                                                 style={{ resize: "none" }}
                                                 type="text"
                                                 placeholder="Write your special requests here"
-                                                maxlength={250}
-                                                rows={3}
+                                                maxLength="250"
+                                                rows="3"
                                                 {...formik.getFieldProps(
                                                     "guestSpecialReq"
                                                 )}
@@ -209,6 +354,7 @@ export default function App() {
                                             <Form.Label>First Name</Form.Label>
                                             <Form.Control
                                                 type="text"
+                                                aria-label="customerFirstName"
                                                 placeholder="First Name"
                                                 {...formik.getFieldProps(
                                                     "customerFirstName"
@@ -220,12 +366,17 @@ export default function App() {
                                                         .customerFirstName
                                                 }
                                             />
-                                            <Form.Control.Feedback type="invalid">
-                                                {
-                                                    formik.errors
-                                                        .customerFirstName
-                                                }
-                                            </Form.Control.Feedback>
+                                            <ErrorMessage
+                                                name="customerFirstName"
+                                                render={(errorMessage) => (
+                                                    <Form.Control.Feedback
+                                                        type="invalid"
+                                                        aria-label="customerFirstNameError"
+                                                    >
+                                                        {errorMessage}
+                                                    </Form.Control.Feedback>
+                                                )}
+                                            />
                                         </Form.Group>
 
                                         <Form.Group
@@ -239,6 +390,7 @@ export default function App() {
                                             </Form.Label>
                                             <Form.Control
                                                 type="email"
+                                                aria-label="customerEmail"
                                                 placeholder="Email"
                                                 {...formik.getFieldProps(
                                                     "customerEmail"
@@ -250,9 +402,17 @@ export default function App() {
                                                         .customerEmail
                                                 }
                                             />
-                                            <Form.Control.Feedback type="invalid">
-                                                {formik.errors.customerEmail}
-                                            </Form.Control.Feedback>
+                                            <ErrorMessage
+                                                name="customerEmail"
+                                                render={(errorMessage) => (
+                                                    <Form.Control.Feedback
+                                                        type="invalid"
+                                                        aria-label="customerEmailError"
+                                                    >
+                                                        {errorMessage}
+                                                    </Form.Control.Feedback>
+                                                )}
+                                            />
                                         </Form.Group>
                                     </Row>
                                 </Row>
@@ -273,6 +433,7 @@ export default function App() {
                                             </Form.Label>
                                             <Form.Control
                                                 type="text"
+                                                aria-label="cardName"
                                                 {...formik.getFieldProps(
                                                     "cardName"
                                                 )}
@@ -281,9 +442,17 @@ export default function App() {
                                                     !!formik.errors.cardName
                                                 }
                                             />
-                                            <Form.Control.Feedback type="invalid">
-                                                {formik.errors.cardName}
-                                            </Form.Control.Feedback>
+                                            <ErrorMessage
+                                                name="cardName"
+                                                render={(errorMessage) => (
+                                                    <Form.Control.Feedback
+                                                        type="invalid"
+                                                        aria-label="cardNameError"
+                                                    >
+                                                        {errorMessage}
+                                                    </Form.Control.Feedback>
+                                                )}
+                                            />
                                         </Form.Group>
 
                                         <Form.Group
@@ -292,22 +461,117 @@ export default function App() {
                                             className="mb-3"
                                             controlId="cardNumber"
                                         >
-                                            <Form.Label>Card Number</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                // pattern="\d*"
-                                                maxlength="16"
-                                                {...formik.getFieldProps(
-                                                    "cardNumber"
-                                                )}
-                                                isInvalid={
-                                                    formik.touched.cardNumber &&
-                                                    !!formik.errors.cardNumber
-                                                }
-                                            />
-                                            <Form.Control.Feedback type="invalid">
-                                                {formik.errors.cardNumber}
-                                            </Form.Control.Feedback>
+                                            <Row>
+                                                <Form.Label>
+                                                    Card Number
+                                                </Form.Label>
+                                            </Row>
+                                            <Row>
+                                                {/* <Form.Label column sm="2">
+                                                    <Image src={logo} thumbnail="true" sm="auto"/>
+                                                </Form.Label>
+                                                <Col sm="10">
+                                                    <Form.Control
+                                                        type="text"
+                                                        aria-label="cardNumber"
+                                                        // pattern="\d*"
+                                                        maxLength={valid.number(formik.values.cardNumber).card? valid.number(formik.values.cardNumber).card.lengths.at(-1): 16}
+                                                        {...formik.getFieldProps(
+                                                            "cardNumber"
+                                                        )}
+                                                        onChange={(e) => {
+                                                            onNumberChange(
+                                                                e,
+                                                                formik
+                                                            );
+                                                        }}
+                                                        isInvalid={
+                                                            formik.touched
+                                                                .cardNumber &&
+                                                            !!formik.errors
+                                                                .cardNumber
+                                                        }
+                                                    />
+                                                    <ErrorMessage
+                                                        name="cardNumber"
+                                                        render={(
+                                                            errorMessage
+                                                        ) => (
+                                                            <Form.Control.Feedback
+                                                                type="invalid"
+                                                                aria-label="cardNumberError"
+                                                            >
+                                                                {errorMessage}
+                                                            </Form.Control.Feedback>
+                                                        )}
+                                                    />
+                                                </Col> */}
+                                                <PaymentInputsWrapper
+                                                    {...wrapperProps}
+                                                    styles={{
+                                                        input: {
+                                                            base: {
+                                                                color: "green",
+                                                            },
+                                                            errored: {
+                                                                color: "maroon",
+                                                            },
+                                                            cardNumber: {
+                                                                width: "100%",
+                                                            },
+                                                        },
+                                                    }}
+                                                    className="sm-auto"
+                                                >
+                                                    <svg
+                                                        {...getCardImageProps({
+                                                            images,
+                                                        })}
+                                                    />
+                                                    <Field>
+                                                        {({ field }) => (
+                                                            <input
+                                                                {...getCardNumberProps(
+                                                                    {
+                                                                        onBlur: field.onBlur,
+                                                                        onChange:
+                                                                            field.onChange,
+                                                                    }
+                                                                )}
+                                                                value={
+                                                                    formik
+                                                                        .values
+                                                                        .cardNumber
+                                                                }
+                                                                maxLength={
+                                                                    valid.number(
+                                                                        formik
+                                                                            .values
+                                                                            .cardNumber
+                                                                    ).card
+                                                                        ? valid
+                                                                              .number(
+                                                                                  formik
+                                                                                      .values
+                                                                                      .cardNumber
+                                                                              )
+                                                                              .card.lengths.at(
+                                                                                  -1
+                                                                              ) +
+                                                                          valid.number(
+                                                                              formik
+                                                                                  .values
+                                                                                  .cardNumber
+                                                                          ).card
+                                                                              .gaps
+                                                                              .size
+                                                                        : 16
+                                                                }
+                                                            />
+                                                        )}
+                                                    </Field>
+                                                </PaymentInputsWrapper>
+                                            </Row>
                                         </Form.Group>
                                     </Row>
 
@@ -343,7 +607,6 @@ export default function App() {
                                                         <option
                                                             value=""
                                                             disabled
-                                                            selected
                                                         >
                                                             Month
                                                         </option>
@@ -384,12 +647,19 @@ export default function App() {
                                                             December
                                                         </option>
                                                     </Form.Select>
-                                                    <Form.Control.Feedback type="invalid">
-                                                        {
-                                                            formik.errors
-                                                                .cardMonth
-                                                        }
-                                                    </Form.Control.Feedback>
+                                                    <ErrorMessage
+                                                        name="cardMonth"
+                                                        render={(
+                                                            errorMessage
+                                                        ) => (
+                                                            <Form.Control.Feedback
+                                                                type="invalid"
+                                                                aria-label="cardMonthError"
+                                                            >
+                                                                {errorMessage}
+                                                            </Form.Control.Feedback>
+                                                        )}
+                                                    />
                                                 </Col>
                                                 <Col sm={true}>
                                                     <Form.Select
@@ -402,14 +672,12 @@ export default function App() {
                                                             formik.touched
                                                                 .cardYear &&
                                                             formik.values
-                                                                .cardMonth ===
-                                                                ""
+                                                                .cardYear === ""
                                                         }
                                                     >
                                                         <option
                                                             value=""
                                                             disabled
-                                                            selected
                                                         >
                                                             Year
                                                         </option>
@@ -420,6 +688,9 @@ export default function App() {
                                                                         value={
                                                                             year
                                                                         }
+                                                                        key={
+                                                                            index
+                                                                        }
                                                                     >
                                                                         {year}
                                                                     </option>
@@ -427,9 +698,19 @@ export default function App() {
                                                             }
                                                         )}
                                                     </Form.Select>
-                                                    <Form.Control.Feedback type="invalid">
-                                                        {formik.errors.cardYear}
-                                                    </Form.Control.Feedback>
+                                                    <ErrorMessage
+                                                        name="cardYear"
+                                                        render={(
+                                                            errorMessage
+                                                        ) => (
+                                                            <Form.Control.Feedback
+                                                                type="invalid"
+                                                                aria-label="cardYearError"
+                                                            >
+                                                                {errorMessage}
+                                                            </Form.Control.Feedback>
+                                                        )}
+                                                    />
                                                 </Col>
                                             </Row>
                                         </Form.Group>
@@ -443,19 +724,40 @@ export default function App() {
                                             <Form.Label>CVV/CVC</Form.Label>
                                             <Form.Control
                                                 type="text"
+                                                aria-label="cardCVC"
                                                 // pattern="\d*"
-                                                maxlength="4"
+                                                maxLength={
+                                                    valid.number(
+                                                        formik.values.cardNumber
+                                                    ).card
+                                                        ? valid.number(
+                                                              formik.values
+                                                                  .cardNumber
+                                                          ).card.code.size
+                                                        : 4
+                                                }
                                                 {...formik.getFieldProps(
                                                     "cardCVC"
                                                 )}
+                                                onChange={(e) =>
+                                                    onNumberChange(e, formik)
+                                                }
                                                 isInvalid={
                                                     formik.touched.cardCVC &&
                                                     !!formik.errors.cardCVC
                                                 }
                                             />
-                                            <Form.Control.Feedback type="invalid">
-                                                {formik.errors.cardCVC}
-                                            </Form.Control.Feedback>
+                                            <ErrorMessage
+                                                name="cardCVC"
+                                                render={(errorMessage) => (
+                                                    <Form.Control.Feedback
+                                                        type="invalid"
+                                                        aria-label="cardCVCError"
+                                                    >
+                                                        {errorMessage}
+                                                    </Form.Control.Feedback>
+                                                )}
+                                            />
                                         </Form.Group>
                                     </Row>
 
@@ -473,6 +775,7 @@ export default function App() {
                                             <Form.Label>Address</Form.Label>
                                             <Form.Control
                                                 type="text"
+                                                aria-label="billingAddress"
                                                 {...formik.getFieldProps(
                                                     "billingAddress"
                                                 )}
@@ -483,9 +786,17 @@ export default function App() {
                                                         .billingAddress
                                                 }
                                             ></Form.Control>
-                                            <Form.Control.Feedback type="invalid">
-                                                {formik.errors.billingAddress}
-                                            </Form.Control.Feedback>
+                                            <ErrorMessage
+                                                name="billingAddress"
+                                                render={(errorMessage) => (
+                                                    <Form.Control.Feedback
+                                                        type="invalid"
+                                                        aria-label="billingAddressError"
+                                                    >
+                                                        {errorMessage}
+                                                    </Form.Control.Feedback>
+                                                )}
+                                            />
                                         </Form.Group>
                                         {/* City */}
                                         <Form.Group
@@ -497,6 +808,7 @@ export default function App() {
                                             <Form.Label>City</Form.Label>
                                             <Form.Control
                                                 type="text"
+                                                aria-label="billingCity"
                                                 {...formik.getFieldProps(
                                                     "billingCity"
                                                 )}
@@ -506,9 +818,17 @@ export default function App() {
                                                     !!formik.errors.billingCity
                                                 }
                                             ></Form.Control>
-                                            <Form.Control.Feedback type="invalid">
-                                                {formik.errors.billingCity}
-                                            </Form.Control.Feedback>
+                                            <ErrorMessage
+                                                name="billingCity"
+                                                render={(errorMessage) => (
+                                                    <Form.Control.Feedback
+                                                        type="invalid"
+                                                        aria-label="billingCityError"
+                                                    >
+                                                        {errorMessage}
+                                                    </Form.Control.Feedback>
+                                                )}
+                                            />
                                         </Form.Group>
                                     </Row>
 
@@ -524,6 +844,7 @@ export default function App() {
                                             <Form.Label>Postal Code</Form.Label>
                                             <Form.Control
                                                 type="text"
+                                                aria-label="billingPostalCode"
                                                 {...formik.getFieldProps(
                                                     "billingPostalCode"
                                                 )}
@@ -534,12 +855,17 @@ export default function App() {
                                                         .billingPostalCode
                                                 }
                                             ></Form.Control>
-                                            <Form.Control.Feedback type="invalid">
-                                                {
-                                                    formik.errors
-                                                        .billingPostalCode
-                                                }
-                                            </Form.Control.Feedback>
+                                            <ErrorMessage
+                                                name="billingPostalCode"
+                                                render={(errorMessage) => (
+                                                    <Form.Control.Feedback
+                                                        type="invalid"
+                                                        aria-label="billingPostalCodeError"
+                                                    >
+                                                        {errorMessage}
+                                                    </Form.Control.Feedback>
+                                                )}
+                                            />
                                         </Form.Group>
                                         {/* Country */}
                                         <Form.Group
@@ -558,21 +884,21 @@ export default function App() {
                                                     "billingCountry"
                                                 )}
                                                 isInvalid={
-                                                    formik.touched.billingCountry &&
-                                                    formik.values.billingCountry ===
-                                                        ""
+                                                    formik.touched
+                                                        .billingCountry &&
+                                                    formik.values
+                                                        .billingCountry === ""
                                                 }
                                             >
-                                                <option
-                                                    value=""
-                                                    disabled
-                                                    selected
-                                                > </option>
+                                                <option value="" disabled>
+                                                    {""}
+                                                </option>
                                                 {countryOptions.map(
                                                     (country, index) => {
                                                         return (
                                                             <option
                                                                 value={country}
+                                                                key={index}
                                                             >
                                                                 {country}
                                                             </option>
@@ -580,12 +906,17 @@ export default function App() {
                                                     }
                                                 )}
                                             </Form.Select>
-                                            <Form.Control.Feedback type="invalid">
-                                                {
-                                                    formik.errors
-                                                        .billingCountry
-                                                }
-                                            </Form.Control.Feedback>
+                                            <ErrorMessage
+                                                name="billingCountry"
+                                                render={(errorMessage) => (
+                                                    <Form.Control.Feedback
+                                                        type="invalid"
+                                                        aria-label="billingCountry"
+                                                    >
+                                                        {errorMessage}
+                                                    </Form.Control.Feedback>
+                                                )}
+                                            />
                                         </Form.Group>
                                     </Row>
                                 </Row>
