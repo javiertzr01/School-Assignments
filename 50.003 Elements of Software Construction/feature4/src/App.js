@@ -143,6 +143,7 @@ export default function App() {
                         }}
                         // onSubmit={(values, { setSubmitting }) => {
                         //     const guest = {
+                        //         salutation: values.guestSalutation,
                         //         firstName: values.guestFirstName,
                         //         lastName: values.guestLastName,
                         //         hpNumber: values.guestHpNum,
@@ -197,6 +198,7 @@ export default function App() {
                         //     }
                         // }}
                         initialValues={{
+                            guestSalutation: "",
                             guestFirstName: "",
                             guestLastName: "",
                             guestHpNum: "",
@@ -223,7 +225,29 @@ export default function App() {
                                     <Row className="mb-3">
                                         <Form.Group
                                             as={Col}
-                                            sm={true}
+                                            md={2}
+                                            className="mb-3"
+                                            controlId="Salutation">
+                                        <Form.Label>Salutation</Form.Label>
+                                        <Form.Select 
+                                            className="mb-3"
+                                            aria-label="guestSalutation"
+                                            {...formik.getFieldProps("guestSalutation")}
+                                                    >
+                                            <option
+                                                value=""
+                                                disabled
+                                            ></option>
+                                            <option value="mr">Mr</option>
+                                            <option value="mrs">Mrs</option>
+                                            <option value="ms">Ms</option>
+                                            <option value="mdm">Mdm</option>
+                                            <option value="dr">Dr.</option>
+                                        </Form.Select>
+                                        </Form.Group>
+                                        <Form.Group
+                                            as={Col}
+                                            md={true}
                                             className="mb-3"
                                             controlId="firstName"
                                         >
@@ -258,7 +282,7 @@ export default function App() {
 
                                         <Form.Group
                                             as={Col}
-                                            sm={true}
+                                            md={true}
                                             className="mb-3"
                                             controlId="lastName"
                                         >
